@@ -1,5 +1,8 @@
 # AI-Powered Automated CV Screening & Candidate Shortlisting with n8n
 
+![AI-Powered CV Screening and Candidate Shortlisting](https://github.com/user-attachments/assets/dc48e631-6f90-45f3-894b-6ee2cf003e68)
+
+
 🤖 **Fully automated resume screening pipeline** that reads CVs from Gmail, extracts content, evaluates candidates using OpenAI GPT-4o, scores them (0–100), shortlists qualified applicants (≥70 + experience check), stores everything in Google Sheets, and instantly notifies your HR team via email.
 
 Built with **n8n** – the open-source workflow automation tool.
