@@ -1,0 +1,815 @@
+{
+  "name": "AI-Powered CV Screening and Candidate Shortlisting",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "q": "=subject:\"Application for Data Analyst Job\" has:attachment"
+        },
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "id": "99ea175f-d825-4f12-ae86-ee123bffe2b1",
+      "name": "CV Email Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        400
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nTpcihF7ys2guNHH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "=job_description",
+              "value": "=## **Job Title: Data Analyst (Entry-Level)**\n\n**Experience:** 3+ Years\n**Employment Type:** Full-Time\n\n### **Job Summary**\n\nWe are seeking a detail-oriented and analytical Entry-Level Data Analyst to join our team. The ideal candidate will be responsible for collecting, cleaning, analyzing, and interpreting data to help drive informed business decisions. This role is perfect for recent graduates or early-career professionals looking to build hands-on experience in data analytics.\n\n---\n\n### **Key Responsibilities**\n\n* Collect and clean data from multiple sources to ensure accuracy and consistency\n* Analyze datasets to identify trends, patterns, and insights\n* Develop dashboards and reports using tools such as Excel, Power BI, or Tableau\n* Write basic SQL queries to extract data from databases\n* Support business teams with ad-hoc data requests\n* Present findings in a clear and concise manner\n* Assist in maintaining data documentation and reports\n\n---\n\n### **Required Qualifications**\n\n* Bachelor’s degree in Data Science, Statistics, Computer Science, Mathematics, Economics, or related field\n* 0–3 years of experience in data analysis or related role (internships included)\n* Strong proficiency in Microsoft Excel\n* Basic knowledge of SQL\n* Understanding of data visualization tools (Power BI, Tableau, or similar)\n* Strong analytical and problem-solving skills\n* Good communication and presentation abilities\n\n---\n\n### **Preferred Qualifications**\n\n* Familiarity with Python or R for data analysis\n* Knowledge of basic statistics and data modeling\n* Experience working with large datasets\n* Understanding of business intelligence concepts\n\n---\n\n### **What We Offer**\n\n* Competitive salary\n* Professional development opportunities\n* Mentorship and training\n* Collaborative work environment",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "65aaa410-8ab7-4401-aed2-3375a0e29112",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=attachment_0",
+        "options": {
+          "joinPages": true
+        }
+      },
+      "id": "c780dc12-c21e-4a5d-ad93-c96c761e73af",
+      "name": "Extract CV Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job Description:\n{{ $json.job_description }}\n\nCV Content:\n{{ $('Extract CV Text').item.json.text }}\n\nAnalyze this candidate and match their data with the job description, provide a comprehensive evaluation with scoring.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert HR recruiter with deep experience in candidate evaluation and talent acquisition. Your role is to analyze CVs against job descriptions and provide objective, structured assessments. Evaluate candidates based on relevant experience, skills match, education, qualifications, and overall fit for the role. \n\nJudge qualification based on the following:\n\nProvide scores from 0-100 where 70+ indicates a qualified candidate if the experience level matches or exceeded the job description.\n\n\nDisqualify the candidate if the experience level is below the required experience in the job description, even if they score 70+"
+        }
+      },
+      "id": "98d3c365-f618-4517-9ab6-47583c13cf7f",
+      "name": "AI CV Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        736,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\"type\":\"object\",\"properties\":{\"candidate_name\":{\"type\":\"string\",\"description\":\"Full name of the candidate\"},\"email\":{\"type\":\"string\",\"description\":\"Email address from CV or email sender\"},\"phone\":{\"type\":\"string\",\"description\":\"Phone number if available\"},\"years_experience\":{\"type\":\"number\",\"description\":\"Total years of relevant experience\"},\"key_skills\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"List of relevant skills\"},\"education\":{\"type\":\"string\",\"description\":\"Highest education level\"},\"score\":{\"type\":\"number\",\"description\":\"Overall match score from 0-100\"},\"is_qualified\":{\"type\":\"boolean\",\"description\":\"True if score >= 70\"},\"summary\":{\"type\":\"string\",\"description\":\"Brief evaluation summary\"},\"strengths\":{\"type\":\"string\",\"description\":\"Key strengths for this role\"},\"concerns\":{\"type\":\"string\",\"description\":\"Any concerns or gaps\"}},\"required\":[\"candidate_name\",\"score\",\"is_qualified\",\"summary\"]}"
+      },
+      "id": "2b311653-53f8-4559-b347-fbdfba03a118",
+      "name": "Structured CV Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        576
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "f4ff4400-6454-430b-a0e6-ba588295df3d",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        576
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "G87I7Y78FF5JSmXH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.output.is_qualified }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "484e09fa-6d25-4237-9026-a013e01d5c67",
+      "name": "Check If Qualified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "Candidate Name",
+              "value": "={{ $json.output.candidate_name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "Email",
+              "value": "={{ $json.output.email || $('CV Email Trigger').item.json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "Phone",
+              "value": "={{ $json.output.phone || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "Score",
+              "value": "={{ $json.output.score }}",
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "Years Experience",
+              "value": "={{ $json.output.years_experience || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "Key Skills",
+              "value": "={{ $json.output.key_skills ? $json.output.key_skills.join(', ') : 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "Education",
+              "value": "={{ $json.output.education || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-8",
+              "name": "Summary",
+              "value": "={{ $json.output.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "id-9",
+              "name": "Strengths",
+              "value": "={{ $json.output.strengths || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-10",
+              "name": "Concerns",
+              "value": "={{ $json.output.concerns || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-11",
+              "name": "Date Received",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5f1e44b9-27c3-4ae3-b299-585f3f59a5d4",
+      "name": "Prepare Sheet Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VcPwNWWjaG86_l1WBkTUgHxX-07SDuyhna5ULK8wZGM",
+          "mode": "list",
+          "cachedResultName": "HR Data Demo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VcPwNWWjaG86_l1WBkTUgHxX-07SDuyhna5ULK8wZGM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Qualified",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VcPwNWWjaG86_l1WBkTUgHxX-07SDuyhna5ULK8wZGM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone ",
+              "displayName": "Phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone's Experience",
+              "displayName": "Phone's Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key Skills",
+              "displayName": "Key Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Education",
+              "displayName": "Education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Strengths",
+              "displayName": "Strengths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Concerns",
+              "displayName": "Concerns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Received",
+              "displayName": "Date Received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ee7d83b1-a711-4c00-88a3-e7bdd6cd98f8",
+      "name": "Store in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1408,
+        176
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6TcwobWfQ7Nx8WMP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "email_subject",
+              "value": "=Qualified Candidate: {{ $json[\"Candidate Name\"] }} - Score: {{ $json.Score }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "email_body",
+              "value": "=A qualified candidate has been identified:\n\n📋 Candidate Details:\n• Name: {{ $json[\"Candidate Name\"] }}\n• Email: {{ $json.Email }}\n• Phone: {{ $json.Phone }}\n• Score: {{ $json.Score }}/100\n• Years of Experience: {{ $json[\"Years Experience\"] }}\n\n🎯 Key Skills:\n{{ $json[\"Key Skills\"] }}\n\n🎓 Education:\n{{ $json.Education }}\n\n✅ Strengths:\n{{ $json.Strengths }}\n\n⚠️ Concerns:\n{{ $json.Concerns }}\n\n📝 Summary:\n{{ $json.Summary }}\n\n---\nThis candidate has been automatically shortlisted and added to the tracking sheet.\nReceived: {{ $json[\"Date Received\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7353efb9-0e96-409a-8059-61980fd8c09b",
+      "name": "Prepare Email Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1408,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "john.uneke.c@gmail.com",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "text",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "f79ef42a-6446-4d3d-8636-69dfd1c6db63",
+      "name": "Send HR Notification",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        288
+      ],
+      "webhookId": "7cfb2ae5-b8e6-4158-ab8c-d83bbbb69680",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nTpcihF7ys2guNHH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "Candidate Name",
+              "value": "={{ $json.output.candidate_name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "Email",
+              "value": "={{ $json.output.email || $('CV Email Trigger').item.json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "Phone",
+              "value": "={{ $json.output.phone || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "Score",
+              "value": "={{ $json.output.score }}",
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "Years Experience",
+              "value": "={{ $json.output.years_experience || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "Key Skills",
+              "value": "={{ $json.output.key_skills ? $json.output.key_skills.join(', ') : 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "Education",
+              "value": "={{ $json.output.education || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-8",
+              "name": "Summary",
+              "value": "={{ $json.output.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "id-9",
+              "name": "Strengths",
+              "value": "={{ $json.output.strengths || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-10",
+              "name": "Concerns",
+              "value": "={{ $json.output.concerns || 'N/A' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-11",
+              "name": "Date Received",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "11ab6b1c-29c5-4f36-8ae0-d00deee0b963",
+      "name": "Prepare Sheet Data1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VcPwNWWjaG86_l1WBkTUgHxX-07SDuyhna5ULK8wZGM",
+          "mode": "list",
+          "cachedResultName": "HR Data Demo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VcPwNWWjaG86_l1WBkTUgHxX-07SDuyhna5ULK8wZGM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 588558509,
+          "mode": "list",
+          "cachedResultName": "Unqualified",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VcPwNWWjaG86_l1WBkTUgHxX-07SDuyhna5ULK8wZGM/edit#gid=588558509"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone ",
+              "displayName": "Phone ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone's Experience",
+              "displayName": "Phone's Experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key Skills",
+              "displayName": "Key Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Education",
+              "displayName": "Education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Strengths",
+              "displayName": "Strengths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Concerns",
+              "displayName": "Concerns",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Received",
+              "displayName": "Date Received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "26790977-8044-4dd4-b128-e86e84f9a309",
+      "name": "Store in Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        560
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6TcwobWfQ7Nx8WMP",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "CV Email Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "AI CV Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract CV Text": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured CV Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI CV Scorer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI CV Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI CV Scorer": {
+      "main": [
+        [
+          {
+            "node": "Check If Qualified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Qualified": {
+      "main": [
+        [
+          {
+            "node": "Prepare Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Sheet Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Store in Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Content": {
+      "main": [
+        [
+          {
+            "node": "Send HR Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sheet Data1": {
+      "main": [
+        [
+          {
+            "node": "Store in Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9562a161-2ba8-408d-9da1-f237c745b25a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "732e39a46be1f50b304218f9c183364fb6d2c6bfac1f88240eb4a91cc67f1898"
+  },
+  "id": "o1zcxspSRe7re2YjP4ini",
+  "tags": []
+}
