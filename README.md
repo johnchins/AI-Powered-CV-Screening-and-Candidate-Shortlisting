@@ -4,7 +4,7 @@
 
 ---
 
-# 🚀 Executive Summary
+## 🚀 Executive Summary
 
 This project demonstrates a production-ready AI recruitment pipeline that automates the first stage of candidate evaluation.
 
@@ -23,9 +23,9 @@ This simulates a scalable AI-powered Applicant Tracking System (ATS) backend bui
 
 ---
 
-# 🏗 Workflow Architecture
+## 🏗 Workflow Architecture
 
-## High-Level System Design
+### High-Level System Design
 
 ```
                 ┌──────────────────────────┐
@@ -69,9 +69,9 @@ This simulates a scalable AI-powered Applicant Tracking System (ATS) backend bui
       └──────────────────────────────┘
 ```
 
-# ⚙️ Workflow Breakdown
+## ⚙️ Workflow Breakdown
 
-## 1️⃣ Gmail CV Trigger
+### 1️⃣ Gmail CV Trigger
 
 - Monitors inbox for:
   - Subject: `"Application for Data Analyst Job"`
@@ -81,7 +81,7 @@ This simulates a scalable AI-powered Applicant Tracking System (ATS) backend bui
 
 ---
 
-## 2️⃣ CV Text Extraction
+### 2️⃣ CV Text Extraction
 
 - Extracts text from PDF attachment
 - Joins multi-page documents
@@ -89,7 +89,7 @@ This simulates a scalable AI-powered Applicant Tracking System (ATS) backend bui
 
 ---
 
-## 3️⃣ Job Description Injection
+### 3️⃣ Job Description Injection
 
 The workflow embeds a predefined job description directly into the AI prompt to ensure consistent evaluation criteria.
 
@@ -101,7 +101,7 @@ This enables:
 
 ---
 
-## 4️⃣ AI CV Scoring Engine (OpenAI)
+### 4️⃣ AI CV Scoring Engine (OpenAI)
 
 The OpenAI model evaluates:
 
@@ -111,7 +111,7 @@ The OpenAI model evaluates:
 - Technical competency
 - Overall job fit
 
-### Scoring Logic
+#### Scoring Logic
 
 - Score range: 0–100
 - 70+ indicates qualified (if experience requirement is met)
@@ -121,7 +121,7 @@ Low temperature (0.2) ensures consistent scoring behavior.
 
 ---
 
-## 5️⃣ Structured Output Enforcement
+### 5️⃣ Structured Output Enforcement
 
 The workflow enforces a strict JSON schema:
 
@@ -150,7 +150,7 @@ This guarantees:
 
 ---
 
-## 6️⃣ Qualification Decision Logic
+### 6️⃣ Qualification Decision Logic
 
 IF Node determines:
 
@@ -164,7 +164,7 @@ Demonstrates conditional workflow branching.
 
 ---
 
-## 7️⃣ Google Sheets Integration
+### 7️⃣ Google Sheets Integration
 
 Automatically logs:
 
@@ -183,7 +183,7 @@ Creates a real-time recruitment dashboard.
 
 ---
 
-## 8️⃣ HR Email Notification
+### 8️⃣ HR Email Notification
 
 For qualified candidates:
 
@@ -196,7 +196,7 @@ Simulates an internal HR alert system.
 
 ---
 
-# 🧩 Core Technologies Used
+## 🧩 Core Technologies Used
 
 - n8n (Workflow Orchestration)
 - OpenAI GPT-4o (Candidate Evaluation)
@@ -208,7 +208,7 @@ Simulates an internal HR alert system.
 
 ---
 
-# 🎯 Real-World Use Cases
+## 🎯 Real-World Use Cases
 
 - AI-powered Applicant Tracking System (ATS)
 - High-volume recruitment automation
@@ -219,9 +219,9 @@ Simulates an internal HR alert system.
 
 ---
 
-# 💼 Portfolio Case Study
+## 💼 Portfolio Case Study
 
-## Problem
+### Problem
 
 Manual CV screening is:
 
@@ -235,7 +235,7 @@ HR teams require objective, structured, automated first-pass screening.
 
 ---
 
-## Solution
+### Solution
 
 Designed and built a fully automated AI recruitment evaluation engine that:
 
@@ -251,7 +251,7 @@ All without manual intervention.
 
 ---
 
-## Technical Highlights
+### Technical Highlights
 
 - Advanced prompt engineering
 - Deterministic scoring architecture
@@ -263,7 +263,7 @@ All without manual intervention.
 
 ---
 
-# 🧠 Skills Demonstrated
+## 🧠 Skills Demonstrated
 
 - AI Workflow Engineering
 - HR Tech Automation
@@ -276,7 +276,7 @@ All without manual intervention.
 
 ---
 
-# 🏢 Enterprise Positioning
+## 🏢 Enterprise Positioning
 
 This system can function as:
 
@@ -295,7 +295,7 @@ It is easily extendable to:
 
 ---
 
-# 📊 Business Impact
+## 📊 Business Impact
 
 - Reduces screening time by up to 90%
 - Standardizes candidate evaluation
