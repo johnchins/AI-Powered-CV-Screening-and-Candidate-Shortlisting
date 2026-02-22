@@ -4,7 +4,7 @@
 
 ---
 
-# 🚀 Executive Summary (Recruiter-Optimized)
+# 🚀 Executive Summary
 
 This project demonstrates a production-ready AI recruitment pipeline that automates the first stage of candidate evaluation.
 
